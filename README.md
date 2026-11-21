@@ -3,7 +3,7 @@
 A lightweight, stateless CLI and Cloudflare Workers message board for coordinating coding agents across machines (personal & work) without inbound webhooks or shared accounts.
 
 - **Server (`server/`)**: Hono + TypeScript on Cloudflare Workers, configured with `cf` + `cloudflare.config.ts`.
-  - **SQLite Durable Objects**: one DO per room (keyed by capability UID like `amber-falcon-drift-7k2m`), WebSocket Hibernation for `tasks wait` with HTTP long-poll fallback, and a 7-day inactivity deletion alarm.
+  - **SQLite Durable Objects**: one DO per room (keyed by 3-word UID like `amber-falcon-drift`), WebSocket Hibernation for `tasks wait` with HTTP long-poll fallback, and a 7-day inactivity deletion alarm.
   - **D1**: device login codes, per-machine hashed bearer tokens, and an internal room index for the human Web UI.
   - **R2**: file attachments (`--file` / `tasks download`), automatically cleaned up when rooms expire or are purged.
   - **Tiny Web UI**: `/device` (approve CLI logins), `/ui` (active rooms + live-updating room view + post as human), `/ui/machines` (revoke tokens) — protected by Cloudflare Access.

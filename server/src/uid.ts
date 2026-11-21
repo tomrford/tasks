@@ -30,6 +30,39 @@ const ADJECTIVES = [
   "horizon", "island", "jasper", "kelp", "lagoon", "lantern", "laurel", "lichen",
   "luminous", "marble", "marine", "mercury", "mineral", "modern", "molten", "morning",
   "mountain", "narrow", "natural", "nebula", "nickel", "nordic", "obsidian", "oceanic",
+  "able", "active", "acute", "adept", "agile", "airy", "alert", "alive",
+  "aloof", "amused", "ancient", "angled", "annual", "antique", "apricot", "aquatic",
+  "arched", "ardent", "arid", "ashen", "atomic", "auburn", "august", "avid",
+  "awake", "aware", "balmy", "bamboo", "bare", "barren", "basic", "beaming",
+  "berry", "better", "big", "bitter", "black", "blank", "bleak", "blissful",
+  "blond", "blunt", "blushing", "booming", "bouncy", "bound", "brave", "brief",
+  "broad", "broken", "brown", "bubbly", "burly", "burning", "busy", "candid",
+  "canny", "casual", "central", "ceramic", "charming", "cheery", "chief", "chilly",
+  "chipper", "choice", "chrome", "civic", "civil", "classic", "clean", "close",
+  "cloudy", "clover", "coarse", "cold", "comely", "comic", "common", "compact",
+  "cool", "cosmic", "cotton", "cozy", "crafty", "craggy", "creamy", "crinkled",
+  "crooked", "curious", "curly", "current", "custom", "cute", "dainty", "damp",
+  "dark", "dashing", "dazzling", "dear", "decent", "deluxe", "dense", "dewy",
+  "direct", "distant", "diverse", "dizzy", "double", "downy", "dreamy", "dry",
+  "dual", "dull", "dusty", "dynamic", "early", "easy", "edgy", "eerie",
+  "elated", "elegant", "elfin", "elite", "empty", "endless", "entire", "epic",
+  "equal", "errant", "eternal", "ethereal", "exact", "exotic", "expert", "extra",
+  "faded", "famous", "fancy", "far", "fawn", "feisty", "festive", "fickle",
+  "firm", "first", "fit", "fixed", "flaky", "flashy", "flat", "fleecy",
+  "fleet", "fluid", "fluffy", "fluent", "flushed", "flying", "foamy", "focal",
+  "fond", "formal", "frank", "free", "fresh", "friendly", "frigid", "frisky",
+  "frosted", "frothy", "frugal", "full", "funny", "furry", "fuzzy", "gallant",
+  "game", "gaunt", "genial", "giant", "giddy", "gifted", "ginger", "glossy",
+  "good", "graceful", "grainy", "grassy", "gravel", "great", "groovy", "grounded",
+  "growing", "gusty", "handy", "hearty", "heavy", "hefty", "heroic", "hilly",
+  "hoary", "honest", "honey", "hopeful", "hot", "huge", "humid", "hushed",
+  "husky", "hybrid", "ideal", "idle", "immense", "inert", "inner", "intact",
+  "intense", "jaunty", "jazzy", "jet", "jovial", "joyful", "joyous", "juicy",
+  "jumbo", "junior", "just", "khaki", "kindly", "kinetic", "kingly", "knitted",
+  "knowing", "lacquer", "lanky", "large", "lasting", "lavish", "lawful", "leafy",
+  "lean", "leaping", "learned", "leather", "level", "lilac", "limber", "lime",
+  "linear", "liquid", "lithe", "little", "living", "local", "lofty", "logical",
+  "long", "loose", "loud", "lovely", "loving", "low", "loyal", "lucky",
 ] as const;
 
 const NOUNS = [
@@ -65,6 +98,38 @@ const NOUNS = [
   "porch", "portal", "prairie", "prism", "prow", "puffin", "pulse", "puma",
   "quail", "quarry", "quartz", "quill", "quiver", "rabbit", "raft", "rail",
   "rain", "ram", "rapids", "raven", "reef", "ridge", "ring", "river",
+  "abbey", "agate", "albatross", "alcove", "alley", "almond", "alpaca", "amber",
+  "amulet", "antelope", "antler", "apple", "apricot", "arbor", "arcade", "arena",
+  "armada", "armor", "arroyo", "ash", "aster", "atoll", "attic", "aurora",
+  "autumn", "awning", "axle", "azalea", "badge", "bale", "ballad", "balloon",
+  "bamboo", "bandit", "banjo", "bank", "banner", "banyan", "barge", "bark",
+  "barn", "barrel", "barrow", "basalt", "basin", "basket", "bass", "bastion",
+  "baton", "bay", "bayou", "beach", "bead", "beaker", "beam", "bean",
+  "beetle", "belfry", "bench", "bight", "birch", "bird", "bistro", "blanket",
+  "blaze", "blimp", "bloom", "blossom", "board", "boat", "bobcat", "boulder",
+  "bow", "bowl", "box", "bramble", "branch", "brazier", "breeze", "briar",
+  "brick", "bridge", "bridle", "brig", "brim", "brine", "brooch", "broth",
+  "buck", "buckle", "bud", "buffalo", "bugle", "bulb", "bull", "bunker",
+  "buoy", "burrow", "bush", "butte", "button", "cabin", "cable", "cactus",
+  "cadence", "cage", "caldera", "calf", "calyx", "camber", "camera", "camp",
+  "canary", "canopy", "canton", "canvas", "cap", "capstan", "caravan", "caribou",
+  "carnation", "carp", "carriage", "carrot", "cart", "cascade", "case", "cask",
+  "castle", "cat", "catamaran", "catch", "cathedral", "catkin", "cattle", "causeway",
+  "cave", "cavern", "cellar", "chalet", "chalk", "chamber", "chamois", "channel",
+  "chapel", "charger", "chariot", "charm", "chart", "chasm", "cheetah", "cherry",
+  "chest", "chestnut", "chickadee", "chime", "chimney", "chipmunk", "chord", "chorus",
+  "chute", "cicada", "cider", "circle", "circuit", "cistern", "citadel", "citrus",
+  "clam", "clasp", "claw", "clay", "clearing", "cleft", "cleric", "clipper",
+  "cloak", "clock", "cloister", "clove", "coach", "coal", "coast", "coat",
+  "cobble", "cobra", "cockle", "cocoa", "cod", "coffer", "cog", "coil",
+  "coin", "collar", "collie", "colt", "column", "comb", "conch", "cone",
+  "conifer", "conduit", "copper", "cord", "core", "corgi", "cork", "cormorant",
+  "corn", "corner", "cornet", "corral", "corsair", "cottage", "cotton", "couch",
+  "council", "country", "courier", "court", "cow", "coyote", "crab", "cradle",
+  "craft", "crag", "cranberry", "crate", "crater", "crayfish", "crayon", "creel",
+  "crevice", "cricket", "crocus", "croft", "crook", "crop", "cross", "crouton",
+  "crucible", "cruiser", "crumb", "crust", "crypt", "cub", "cube", "cuckoo",
+  "cuff", "culvert", "cup", "cupola", "curb", "curlew", "currant", "current",
 ] as const;
 
 const VERBS = [
@@ -100,10 +165,40 @@ const VERBS = [
   "post", "pour", "prance", "press", "pride", "prime", "print", "prism",
   "prize", "probe", "prod", "prong", "proof", "prop", "prowl", "prune",
   "pry", "puff", "pull", "pulse", "pump", "punch", "punt", "purge",
+  "abide", "act", "adapt", "add", "adjust", "admire", "adopt", "adore",
+  "adorn", "advance", "advise", "affirm", "afford", "aid", "aim", "air",
+  "alert", "align", "allay", "allow", "ally", "alter", "amass", "amaze",
+  "amble", "amend", "amuse", "anchor", "angle", "annex", "answer", "appeal",
+  "appear", "apply", "arch", "arise", "arm", "arrive", "ask", "aspire",
+  "assay", "assert", "assess", "assign", "assist", "assure", "attach", "attain",
+  "attend", "attest", "attune", "audit", "auger", "avail", "avert", "avoid",
+  "await", "awake", "awaken", "award", "axe", "back", "badge", "baffle",
+  "bag", "bail", "bait", "bake", "balance", "bale", "ball", "band",
+  "bang", "bank", "banter", "bar", "bare", "bargain", "barge", "bark",
+  "barrel", "barter", "base", "bash", "baste", "bat", "batch", "bathe",
+  "batten", "batter", "battle", "bawl", "bay", "beach", "beacon", "bead",
+  "bear", "beat", "beckon", "bed", "beep", "befit", "begin", "behold",
+  "belay", "bell", "bellow", "belong", "belt", "bench", "bequeath", "berth",
+  "beset", "best", "bestow", "bet", "betide", "better", "bevel", "bias",
+  "bid", "bide", "bike", "bill", "billow", "bind", "bird", "bisect",
+  "bite", "blare", "blast", "bleach", "blend", "bless", "blight", "blind",
+  "bliss", "blitz", "block", "blossom", "blot", "blow", "bluff", "blunt",
+  "blur", "blurt", "blush", "board", "boast", "boat", "bob", "bode",
+  "boggle", "boil", "bolster", "bond", "bone", "bonus", "book", "boom",
+  "boost", "boot", "border", "bore", "borrow", "boss", "calm", "care",
+  "bottle", "bottom", "bounce", "bow", "bower", "bowl", "box", "brace",
+  "brag", "brake", "brand", "brave", "brawl", "bray", "breach", "bread",
+  "break", "claim", "breathe", "breed", "brew", "bribe", "brick", "bridle",
+  "brief", "brighten", "brim", "bring", "bristle", "broach", "broaden", "broil",
+  "broker", "brood", "brook", "broom", "browse", "bruise", "brush", "bubble",
+  "buck", "bucket", "buckle", "bud", "budge", "budget", "buff", "buffer",
+  "buffet", "bugle", "bulge", "bulk", "bull", "bumble", "bump", "bunch",
+  "bundle", "bunk", "bunker", "bunt", "buoy", "burden", "burn", "burnish",
+  "carry", "burrow", "bury", "bus", "bush", "busk", "bust", "bustle",
+  "busy", "center", "butt", "butter", "button", "buy", "buzz", "bypass",
+  "chant", "cabin", "cable", "cache", "cackle", "caddy", "cheer", "cage",
 ] as const;
 
-// Unambiguous Crockford-like base32 alphabet (no 0, O, 1, I, L)
-const BASE32 = "23456789abcdefghjkmnpqrstuvwxyz";
 const USER_CODE_CHARS = "23456789ABCDEFGHJKMNPQRSTUVWXYZ";
 
 function randomUint32(): number {
@@ -116,23 +211,12 @@ function pick<T>(arr: readonly T[]): T {
   return arr[randomUint32() % arr.length]!;
 }
 
-export function randomBase32(length: number): string {
-  const bytes = new Uint8Array(length);
-  crypto.getRandomValues(bytes);
-  let out = "";
-  for (let i = 0; i < length; i++) {
-    out += BASE32[bytes[i]! % BASE32.length];
-  }
-  return out;
-}
-
 /**
- * Generates a memorable, high-entropy room UID like `amber-falcon-drift-7k2m9p4x8q3n`.
- * 3 readable words (~24 bits) + 12 base32 chars (~60 bits) ~= 84 bits of entropy,
- * pairing easy human readability with capability-URL unguessability.
+ * Generates a memorable 3-word room UID like `amber-falcon-drift`.
+ * 512 adjectives * 512 nouns * 512 verbs = 134,217,728 combinations (27 bits).
  */
 export function generateRoomUid(): string {
-  return `${pick(ADJECTIVES)}-${pick(NOUNS)}-${pick(VERBS)}-${randomBase32(12)}`;
+  return `${pick(ADJECTIVES)}-${pick(NOUNS)}-${pick(VERBS)}`;
 }
 
 export function isValidRoomUid(uid: string): boolean {

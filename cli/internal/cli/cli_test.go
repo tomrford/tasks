@@ -21,7 +21,7 @@ func TestNormalizeArgs(t *testing.T) {
 	var files stringSlice
 	fs.Var(&files, "file", "")
 
-	raw := []string{"amber-falcon-drift-7k2m9p4x8q3n", "- bullet item", "--file", "a.log", "--json", "--status", "waiting", "--file=b.diff"}
+	raw := []string{"amber-falcon-drift", "- bullet item", "--file", "a.log", "--json", "--status", "waiting", "--file=b.diff"}
 	if err := fs.Parse(normalizeArgs(fs, raw)); err != nil {
 		t.Fatalf("parse failed: %v", err)
 	}
@@ -31,7 +31,7 @@ func TestNormalizeArgs(t *testing.T) {
 	if len(files) != 2 || files[0] != "a.log" || files[1] != "b.diff" {
 		t.Fatalf("unexpected files: %v", files)
 	}
-	if fs.NArg() != 2 || fs.Arg(0) != "amber-falcon-drift-7k2m9p4x8q3n" || fs.Arg(1) != "- bullet item" {
+	if fs.NArg() != 2 || fs.Arg(0) != "amber-falcon-drift" || fs.Arg(1) != "- bullet item" {
 		t.Fatalf("unexpected positionals: %v", fs.Args())
 	}
 
@@ -82,12 +82,12 @@ func TestCLISkillAndPostFlow(t *testing.T) {
 		case r.Method == http.MethodPost && r.URL.Path == "/api/tasks":
 			w.WriteHeader(http.StatusCreated)
 			_ = json.NewEncoder(w).Encode(client.RoomSnapshot{
-				UID:     "amber-falcon-drift-7k2m9p4x8q3n",
+				UID:     "amber-falcon-drift",
 				Title:   "sync deploy",
 				Status:  "open",
 				LastSeq: 1,
 			})
-		case r.Method == http.MethodPost && r.URL.Path == "/api/tasks/amber-falcon-drift-7k2m9p4x8q3n/messages":
+		case r.Method == http.MethodPost && r.URL.Path == "/api/tasks/amber-falcon-drift/messages":
 			w.WriteHeader(http.StatusCreated)
 			_ = json.NewEncoder(w).Encode(client.PostMessageResponse{
 				Seq:     2,
@@ -108,13 +108,13 @@ func TestCLISkillAndPostFlow(t *testing.T) {
 	if code := Run([]string{"new", "sync deploy", "--note", "starting"}, "test", strings.NewReader(""), &stdout, &stderr); code != 0 {
 		t.Fatalf("new failed: %d %s", code, stderr.String())
 	}
-	if !strings.Contains(stdout.String(), "uid: amber-falcon-drift-7k2m9p4x8q3n") {
+	if !strings.Contains(stdout.String(), "uid: amber-falcon-drift") {
 		t.Fatalf("unexpected new output: %s", stdout.String())
 	}
 
 	stdout.Reset()
 	stderr.Reset()
-	if code := Run([]string{"post", "amber-falcon-drift-7k2m9p4x8q3n", "- bullet message", "--status", "waiting"}, "test", strings.NewReader(""), &stdout, &stderr); code != 0 {
+	if code := Run([]string{"post", "amber-falcon-drift", "- bullet message", "--status", "waiting"}, "test", strings.NewReader(""), &stdout, &stderr); code != 0 {
 		t.Fatalf("post failed: %d %s", code, stderr.String())
 	}
 	if !strings.Contains(stdout.String(), "next_seq: 2") {

@@ -3,7 +3,7 @@ package skill
 const Text = `# tasks — Cross-Machine Agent Coordination CLI
 
 ` + "`tasks`" + ` is a stateless, semi-ephemeral message board for coordinating agents across machines.
-Rooms are identified by capability UIDs (e.g. ` + "`amber-falcon-drift-7k2m9p4x8q3n`" + `) and auto-expire after 7 days of inactivity.
+Rooms are identified by 3-word UIDs (e.g. ` + "`amber-falcon-drift`" + `) and auto-expire after 7 days of inactivity.
 
 ## Core Pattern (Stateless Cursors)
 

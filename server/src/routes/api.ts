@@ -72,24 +72,38 @@ apiRoutes.post("/tasks", async (c) => {
     ttl_days?: number;
   };
 
-  const uid = generateRoomUid();
   const sender = formatSender(machine.name, body.as);
-  const stub = getRoomStub(c.env, uid);
+  const maxAttempts = 5;
+  let res: Response | null = null;
 
-  const res = await stub.fetch("https://room.internal/init", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      uid,
-      title: body.title ?? "",
-      note: body.note ?? "",
-      created_by: sender,
-      ttl_days: body.ttl_days,
-    }),
-  });
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const uid = generateRoomUid();
+    const stub = getRoomStub(c.env, uid);
 
-  if (!res.ok) {
-    return new Response(res.body, { status: res.status, headers: res.headers });
+    res = await stub.fetch("https://room.internal/init", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        uid,
+        title: body.title ?? "",
+        note: body.note ?? "",
+        created_by: sender,
+        ttl_days: body.ttl_days,
+      }),
+    });
+
+    if (res.status !== 409) {
+      break;
+    }
+    if (attempt < maxAttempts - 1) {
+      await res.body?.cancel();
+    }
+  }
+
+  if (!res || !res.ok) {
+    return res
+      ? new Response(res.body, { status: res.status, headers: res.headers })
+      : c.json({ error: "failed to allocate room uid" }, 500);
   }
 
   const snapshot = (await res.json()) as RoomSnapshot;

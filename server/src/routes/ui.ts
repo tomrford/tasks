@@ -111,39 +111,50 @@ uiRoutes.post("/rooms/new", async (c) => {
   const user = c.get("uiUser");
   const form = await c.req.parseBody();
   const title = String(form.title ?? "").trim();
-  const uid = generateRoomUid();
   const sender = uiSenderName(user);
-  const stub = getRoomStub(c.env, uid);
 
-  const res = await stub.fetch("https://room.internal/init", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ uid, title, created_by: sender }),
-  });
+  let res: Response | null = null;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const uid = generateRoomUid();
+    const stub = getRoomStub(c.env, uid);
 
-  if (res.ok) {
-    const snapshot = (await res.json()) as RoomSnapshot;
-    await c.env.DB.prepare(
-      `INSERT OR IGNORE INTO rooms_index
-       (uid, title, status, created_by, message_count, last_seq, rev, created_at, updated_at, expires_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    )
-      .bind(
-        snapshot.uid,
-        snapshot.title,
-        snapshot.status,
-        snapshot.created_by,
-        snapshot.messages.length,
-        snapshot.last_seq,
-        snapshot.rev,
-        snapshot.created_at,
-        snapshot.updated_at,
-        snapshot.expires_at,
-      )
-      .run();
+    res = await stub.fetch("https://room.internal/init", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid, title, created_by: sender }),
+    });
+
+    if (res.status !== 409) {
+      break;
+    }
+    await res.body?.cancel();
   }
 
-  return c.redirect(`/ui/rooms/${encodeURIComponent(uid)}`);
+  if (!res || !res.ok) {
+    return c.text("Failed to create room", res?.status === 409 ? 409 : 500);
+  }
+
+  const snapshot = (await res.json()) as RoomSnapshot;
+  await c.env.DB.prepare(
+    `INSERT OR IGNORE INTO rooms_index
+     (uid, title, status, created_by, message_count, last_seq, rev, created_at, updated_at, expires_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  )
+    .bind(
+      snapshot.uid,
+      snapshot.title,
+      snapshot.status,
+      snapshot.created_by,
+      snapshot.messages.length,
+      snapshot.last_seq,
+      snapshot.rev,
+      snapshot.created_at,
+      snapshot.updated_at,
+      snapshot.expires_at,
+    )
+    .run();
+
+  return c.redirect(`/ui/rooms/${encodeURIComponent(snapshot.uid)}`);
 });
 
 uiRoutes.get("/rooms/:uid", async (c) => {

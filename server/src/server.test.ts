@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { isSameOrigin, verifyCfAccessJwt } from "./auth";
-import { formatSender, isValidStatus, matchesMention, type MessageRecord } from "./types";
+import { apiRoutes } from "./routes/api";
+import { formatSender, isValidStatus, matchesMention, type Env, type MessageRecord } from "./types";
 import { generateRoomUid, generateUserCode, isValidRoomUid, normalizeUserCode } from "./uid";
 
 function b64url(obj: unknown): string {
@@ -9,9 +10,15 @@ function b64url(obj: unknown): string {
 }
 
 describe("uid", () => {
-  it("generateRoomUid produces valid 4-segment capability uid with 12-char suffix", () => {
+  it("generateRoomUid produces valid 3-word uid", () => {
     const uid = generateRoomUid();
     expectValidUid(uid);
+  });
+
+  it("isValidRoomUid accepts both 3-word and legacy 4-segment uids", () => {
+    assert.equal(isValidRoomUid("amber-falcon-drift"), true);
+    assert.equal(isValidRoomUid("amber-falcon-drift-7k2m9p4x8q3n"), true);
+    assert.equal(isValidRoomUid("bad"), false);
   });
 
   it("generateUserCode and normalizeUserCode", () => {
@@ -24,8 +31,10 @@ describe("uid", () => {
 function expectValidUid(uid: string): void {
   assert.equal(isValidRoomUid(uid), true);
   const parts = uid.split("-");
-  assert.equal(parts.length, 4);
-  assert.equal(parts[3]?.length, 12);
+  assert.equal(parts.length, 3);
+  for (const part of parts) {
+    assert.match(part, /^[a-z]+$/);
+  }
 }
 
 describe("types and sender formatting", () => {
@@ -90,5 +99,146 @@ describe("auth checks", () => {
 
     const missingIss = `${b64url({ alg: "RS256", kid: "k1" })}.${b64url({ aud: "aud1", exp: 9999999999 })}.sig`;
     await assert.rejects(() => verifyCfAccessJwt(missingIss, "team.cloudflareaccess.com", "aud1"), /issuer mismatch/);
+  });
+});
+
+function createMockApiEnv(collisionsBeforeSuccess: number): {
+  env: Env;
+  ctx: ExecutionContext;
+  getInitAttempts: () => number;
+  getIndexInserts: () => number;
+} {
+  let initAttempts = 0;
+  let indexInserts = 0;
+  const now = Date.now();
+
+  const db = {
+    prepare(sql: string) {
+      return {
+        bind(..._args: unknown[]) {
+          return {
+            async first<T>() {
+              if (sql.includes("FROM machines")) {
+                return {
+                  id: "mach_1",
+                  name: "macbook",
+                  approved_by: "tom",
+                  created_at: now,
+                  last_seen_at: now,
+                  revoked_at: null,
+                } as T;
+              }
+              return null;
+            },
+            async run() {
+              if (sql.includes("INSERT OR IGNORE INTO rooms_index")) {
+                indexInserts++;
+              }
+              return { success: true };
+            },
+          };
+        },
+      };
+    },
+  };
+
+  const rooms = {
+    idFromName(name: string) {
+      return name as unknown as DurableObjectId;
+    },
+    get(_id: DurableObjectId) {
+      return {
+        async fetch(_input: RequestInfo | URL, init?: RequestInit) {
+          initAttempts++;
+          if (initAttempts <= collisionsBeforeSuccess) {
+            return Response.json({ error: "room already exists" }, { status: 409 });
+          }
+          const payload = JSON.parse(String(init?.body ?? "{}")) as {
+            uid: string;
+            title?: string;
+            created_by: string;
+          };
+          return Response.json(
+            {
+              uid: payload.uid,
+              title: payload.title ?? "",
+              status: "open",
+              created_by: payload.created_by,
+              created_at: now,
+              updated_at: now,
+              expires_at: now + 7 * 86_400_000,
+              ttl_ms: 7 * 86_400_000,
+              rev: 1,
+              last_seq: 0,
+              messages: [],
+              attachments: [],
+            },
+            { status: 201 },
+          );
+        },
+      };
+    },
+  };
+
+  const env = {
+    DB: db as unknown as D1Database,
+    ROOMS: rooms as unknown as DurableObjectNamespace,
+    ATTACHMENTS: {} as R2Bucket,
+    CF_ACCESS_TEAM_DOMAIN: "",
+    CF_ACCESS_AUD: "",
+    ALLOW_UNAUTHENTICATED_UI: "false",
+  } satisfies Env;
+
+  const ctx = {
+    waitUntil() {},
+    passThroughOnException() {},
+  } as unknown as ExecutionContext;
+
+  return {
+    env,
+    ctx,
+    getInitAttempts: () => initAttempts,
+    getIndexInserts: () => indexInserts,
+  };
+}
+
+describe("api room creation collision retry", () => {
+  it("retries after a 409 collision and inserts into D1 once on success", async () => {
+    const mock = createMockApiEnv(1);
+    const req = new Request("https://tasks.example.com/tasks", {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer tsk_test",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ title: "retry check" }),
+    });
+
+    const res = await apiRoutes.fetch(req, mock.env, mock.ctx);
+    assert.equal(res.status, 201);
+    const data = (await res.json()) as { uid: string; title: string };
+    expectValidUid(data.uid);
+    assert.equal(data.title, "retry check");
+    assert.equal(mock.getInitAttempts(), 2);
+    assert.equal(mock.getIndexInserts(), 1);
+  });
+
+  it("returns 409 cleanly without D1 insert after five consecutive collisions", async () => {
+    const mock = createMockApiEnv(5);
+    const req = new Request("https://tasks.example.com/tasks", {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer tsk_test",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ title: "exhausted" }),
+    });
+
+    const res = await apiRoutes.fetch(req, mock.env, mock.ctx);
+    assert.equal(res.status, 409);
+    const data = (await res.json()) as { error: string };
+    assert.equal(data.error, "room already exists");
+    assert.equal(mock.getInitAttempts(), 5);
+    assert.equal(mock.getIndexInserts(), 0);
   });
 });

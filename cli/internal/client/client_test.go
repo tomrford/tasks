@@ -45,7 +45,7 @@ func TestWaitWebSocketAndLongPoll(t *testing.T) {
 		defer srv.Close()
 
 		c := client.New(srv.URL, "tok_123")
-		ev, err := c.Wait(context.Background(), "amber-falcon-drift-7k2m9p4x8q3n", client.WaitOptions{
+		ev, err := c.Wait(context.Background(), "amber-falcon-drift", client.WaitOptions{
 			Since:   2,
 			Timeout: 5 * time.Second,
 		})
@@ -68,7 +68,7 @@ func TestWaitWebSocketAndLongPoll(t *testing.T) {
 		defer srv.Close()
 
 		c := client.New(srv.URL, "tok_123")
-		_, err := c.Wait(context.Background(), "amber-falcon-drift-7k2m9p4x8q3n", client.WaitOptions{
+		_, err := c.Wait(context.Background(), "amber-falcon-drift", client.WaitOptions{
 			Since:   2,
 			Timeout: 5 * time.Second,
 		})
@@ -97,7 +97,7 @@ func TestWaitWebSocketAndLongPoll(t *testing.T) {
 		defer srv.Close()
 
 		c := client.New(srv.URL, "tok_123")
-		ev, err := c.Wait(context.Background(), "amber-falcon-drift-7k2m9p4x8q3n", client.WaitOptions{
+		ev, err := c.Wait(context.Background(), "amber-falcon-drift", client.WaitOptions{
 			Since:   3,
 			Timeout: 5 * time.Second,
 		})
@@ -124,7 +124,7 @@ func TestWaitWebSocketAndLongPoll(t *testing.T) {
 		defer srv.Close()
 
 		c := client.New(srv.URL, "tok_123")
-		ev, err := c.Wait(context.Background(), "amber-falcon-drift-7k2m9p4x8q3n", client.WaitOptions{
+		ev, err := c.Wait(context.Background(), "amber-falcon-drift", client.WaitOptions{
 			Since:     1,
 			Timeout:   500 * time.Millisecond,
 			ForcePoll: true,
@@ -176,7 +176,7 @@ func TestWaitWebSocketAndLongPoll(t *testing.T) {
 		}
 
 		c := client.New(srv.URL, "tok_123")
-		att, err := c.UploadAttachment(context.Background(), "amber-falcon-drift-7k2m9p4x8q3n", src, "dev")
+		att, err := c.UploadAttachment(context.Background(), "amber-falcon-drift", src, "dev")
 		if err != nil {
 			t.Fatalf("upload failed: %v", err)
 		}
@@ -185,7 +185,7 @@ func TestWaitWebSocketAndLongPoll(t *testing.T) {
 		}
 
 		dest := filepath.Join(tmp, "out.diff")
-		written, n, err := c.DownloadAttachment(context.Background(), "amber-falcon-drift-7k2m9p4x8q3n", "att_1", dest, false)
+		written, n, err := c.DownloadAttachment(context.Background(), "amber-falcon-drift", "att_1", dest, false)
 		if err != nil {
 			t.Fatalf("download failed: %v", err)
 		}
@@ -194,19 +194,19 @@ func TestWaitWebSocketAndLongPoll(t *testing.T) {
 		}
 
 		// Second download without --force must fail with no-clobber
-		if _, _, err := c.DownloadAttachment(context.Background(), "amber-falcon-drift-7k2m9p4x8q3n", "att_1", dest, false); err == nil {
+		if _, _, err := c.DownloadAttachment(context.Background(), "amber-falcon-drift", "att_1", dest, false); err == nil {
 			t.Fatalf("expected no-clobber error on existing destination")
 		}
 
 		// With --force it must succeed
-		if _, _, err := c.DownloadAttachment(context.Background(), "amber-falcon-drift-7k2m9p4x8q3n", "att_1", dest, true); err != nil {
+		if _, _, err := c.DownloadAttachment(context.Background(), "amber-falcon-drift", "att_1", dest, true); err != nil {
 			t.Fatalf("expected --force overwrite to succeed: %v", err)
 		}
 
 		// Checksum mismatch must fail and leave no destination file
 		serveBadHash = true
 		badDest := filepath.Join(tmp, "bad.diff")
-		if _, _, err := c.DownloadAttachment(context.Background(), "amber-falcon-drift-7k2m9p4x8q3n", "att_1", badDest, false); err == nil {
+		if _, _, err := c.DownloadAttachment(context.Background(), "amber-falcon-drift", "att_1", badDest, false); err == nil {
 			t.Fatalf("expected checksum mismatch error")
 		}
 		if _, err := os.Stat(badDest); !errors.Is(err, os.ErrNotExist) {
