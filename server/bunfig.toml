@@ -1,0 +1,19 @@
+[install]
+# Respect 3-day minimum release age for npm packages
+minimumReleaseAge = 259200
+# Allow Cloudflare's prerelease cf CLI & config packages if published within 3 days
+minimumReleaseAgeExcludes = [
+  "cf",
+  "@cloudflare/config",
+  "@cloudflare/vite-plugin",
+  "@cloudflare/workers-types",
+  "@cloudflare/build-output-utils",
+  "@cloudflare/runtime-types",
+  "@cloudflare/unenv-preset",
+  "miniflare",
+  "workerd",
+  "@cloudflare/workerd-darwin-arm64",
+  "@cloudflare/workerd-darwin-64",
+  "@cloudflare/workerd-linux-64",
+  "@cloudflare/workerd-linux-arm64"
+]

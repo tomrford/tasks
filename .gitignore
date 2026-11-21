@@ -1,0 +1,19 @@
+# OS
+.DS_Store
+
+# Node / Bun / Cloudflare
+node_modules/
+.wrangler/
+.cf/
+.cloudflare/
+.dev.vars
+.env
+.env.local
+dist/
+
+# Go
+/cli/tasks
+/cli/bin/
+*.exe
+*.test
+*.out

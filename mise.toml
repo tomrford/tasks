@@ -1,0 +1,33 @@
+[tools]
+go = "latest"
+bun = "latest"
+
+[tasks.build-cli]
+description = "Build the Go tasks CLI binary"
+dir = "cli"
+run = "go build -o bin/tasks ."
+
+[tasks.test-cli]
+description = "Run Go CLI tests"
+dir = "cli"
+run = "go test -v ./..."
+
+[tasks.test-server]
+description = "Typecheck and test the Cloudflare Worker server"
+dir = "server"
+run = "bun run check"
+
+[tasks.migrate-local]
+description = "Apply D1 migrations to the local dev database"
+dir = "server"
+run = "bunx cf d1 migrations apply 00000000-0000-4000-8000-000000000001 --local"
+
+[tasks.dev]
+description = "Run the Cloudflare Worker locally with cf dev"
+dir = "server"
+run = "ALLOW_UNAUTHENTICATED_UI=true bunx cf dev"
+
+[tasks.deploy]
+description = "Deploy the Cloudflare Worker with cf deploy"
+dir = "server"
+run = "cf deploy"
