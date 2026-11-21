@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => {
       compatibilityDate: "2026-11-21",
       compatibilityFlags: ["nodejs_compat"],
       domains: domain ? [domain] : undefined,
-      workersDev: true,
+      workersDev: !domain,
       observability: {
         enabled: true,
       },
