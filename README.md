@@ -37,7 +37,7 @@ A lightweight, stateless CLI and Cloudflare Workers message board for coordinati
    cf r2 bucket create tasks-attachments
    ```
 
-2. Configure **Cloudflare Access** for your domain (e.g. `tasks.tomrford.com`):
+2. Configure **Cloudflare Access** for your domain (e.g. `tasks.example.com`):
    - Protect `/`, `/ui*`, and `/device*` with your Cloudflare Access application (e.g. One-Time PIN magic email policy).
    - Set the Access application cookie **SameSite attribute to `Lax`** (recommended alongside the Worker's built-in CSRF / Origin checks).
    - Leave `/api/*` and `/health` **outside** CF Access (or add a Bypass policy on `/api/*`), since CLI calls authenticate with per-machine bearer tokens issued after CF Access approval.
@@ -45,7 +45,7 @@ A lightweight, stateless CLI and Cloudflare Workers message board for coordinati
 3. Deploy with your environment values:
    ```sh
    cd server
-   TASKS_DOMAIN=tasks.tomrford.com \
+   TASKS_DOMAIN=tasks.example.com \
    TASKS_D1_ID=<D1_DATABASE_ID> \
    CF_ACCESS_TEAM_DOMAIN=yourteam.cloudflareaccess.com \
    CF_ACCESS_AUD=your-access-application-aud \
@@ -56,7 +56,7 @@ A lightweight, stateless CLI and Cloudflare Workers message board for coordinati
 
 ```sh
 # One-time machine auth
-tasks login --url https://tasks.tomrford.com
+tasks login --url https://tasks.example.com
 
 # Create a room
 tasks new "sync backend & frontend" --note "starting API changes on macbook"

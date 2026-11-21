@@ -155,7 +155,7 @@ func requireClient(stderr io.Writer) (*client.Client, config.Config, bool) {
 		return nil, cfg, false
 	}
 	if cfg.URL == "" || cfg.Token == "" {
-		fmt.Fprintln(stderr, "not logged in — run `tasks login --url https://tasks.tomrford.com` first (or set TASKS_URL and TASKS_TOKEN)")
+		fmt.Fprintln(stderr, "not logged in — run `tasks login --url https://tasks.example.com` first (or set TASKS_URL and TASKS_TOKEN)")
 		return nil, cfg, false
 	}
 	return client.New(cfg.URL, cfg.Token), cfg, true
@@ -184,7 +184,7 @@ func runLogin(ctx context.Context, args []string, stdout, stderr io.Writer) int 
 
 	fs := flag.NewFlagSet("login", flag.ContinueOnError)
 	fs.SetOutput(stderr)
-	urlFlag := fs.String("url", cfg.URL, "Server base URL (e.g. https://tasks.tomrford.com)")
+	urlFlag := fs.String("url", cfg.URL, "Server base URL (e.g. https://tasks.example.com)")
 	nameFlag := fs.String("name", host, "Machine name to register")
 	if err := fs.Parse(normalizeArgs(fs, args)); err != nil {
 		return 2
@@ -192,7 +192,7 @@ func runLogin(ctx context.Context, args []string, stdout, stderr io.Writer) int 
 
 	serverURL := strings.TrimRight(strings.TrimSpace(*urlFlag), "/")
 	if serverURL == "" {
-		fmt.Fprintln(stderr, "error: --url is required (e.g. tasks login --url https://tasks.tomrford.com)")
+		fmt.Fprintln(stderr, "error: --url is required (e.g. tasks login --url https://tasks.example.com)")
 		return 2
 	}
 	machineName := strings.TrimSpace(*nameFlag)
