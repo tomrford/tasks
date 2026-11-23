@@ -22,6 +22,10 @@ jobs:
             goarch: arm64
           - goos: linux
             goarch: amd64
+          - goos: windows
+            goarch: arm64
+          - goos: windows
+            goarch: amd64
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -36,12 +40,20 @@ jobs:
           CGO_ENABLED: "0"
         run: |
           mkdir -p dist
-          go build -trimpath -ldflags "-s -w -X main.version=${GITHUB_REF_NAME}" -o dist/tasks .
-          tar -czf "dist/tasks_${GITHUB_REF_NAME}_${GOOS}_${GOARCH}.tar.gz" -C dist tasks
+          archive="tasks_${GITHUB_REF_NAME}_${GOOS}_${GOARCH}"
+          if [ "$GOOS" = windows ]; then
+            go build -trimpath -ldflags "-s -w -X main.version=${GITHUB_REF_NAME}" -o dist/tasks.exe .
+            (cd dist && zip -q "${archive}.zip" tasks.exe)
+          else
+            go build -trimpath -ldflags "-s -w -X main.version=${GITHUB_REF_NAME}" -o dist/tasks .
+            tar -czf "dist/${archive}.tar.gz" -C dist tasks
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: tasks-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: cli/dist/*.tar.gz
+          path: |
+            cli/dist/*.tar.gz
+            cli/dist/*.zip
 
   release:
     needs: build
@@ -53,7 +65,7 @@ jobs:
           merge-multiple: true
       - name: Generate checksums
         working-directory: artifacts
-        run: sha256sum *.tar.gz > checksums.txt
+        run: sha256sum *.tar.gz *.zip > checksums.txt
       - uses: softprops/action-gh-release@v2
         with:
           files: artifacts/*
