@@ -3,9 +3,11 @@ package config
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -30,6 +32,25 @@ func Path() (string, error) {
 	return filepath.Join(dir, "tasks", "config.json"), nil
 }
 
+var schemePrefix = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9+.-]*://`)
+
+// NormalizeURL defaults a scheme-less server URL to https://, trims trailing slashes, and
+// rejects anything that is not an http(s) URL with a host. Blank input returns "".
+func NormalizeURL(raw string) (string, error) {
+	s := strings.TrimSpace(raw)
+	if s == "" {
+		return "", nil
+	}
+	if !schemePrefix.MatchString(s) {
+		s = "https://" + s
+	}
+	u, err := url.Parse(s)
+	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Hostname() == "" {
+		return "", fmt.Errorf("invalid server URL %q (expected e.g. https://tasks.example.com)", raw)
+	}
+	return strings.TrimRight(s, "/"), nil
+}
+
 func originOf(raw string) string {
 	u, err := url.Parse(strings.TrimSpace(raw))
 	if err != nil || u.Scheme == "" || u.Host == "" {
@@ -51,12 +72,19 @@ func Load() (Config, error) {
 		}
 	}
 
-	savedOrigin := originOf(cfg.URL)
-	envURL := strings.TrimSpace(os.Getenv("TASKS_URL"))
+	savedURL, err := NormalizeURL(cfg.URL)
+	if err != nil {
+		return Config{}, fmt.Errorf("saved config: %w", err)
+	}
+	cfg.URL = savedURL
 	envToken := strings.TrimSpace(os.Getenv("TASKS_TOKEN"))
 
-	if envURL != "" {
-		if savedOrigin != "" && originOf(envURL) != savedOrigin && envToken == "" {
+	if rawEnvURL := strings.TrimSpace(os.Getenv("TASKS_URL")); rawEnvURL != "" {
+		envURL, err := NormalizeURL(rawEnvURL)
+		if err != nil {
+			return Config{}, fmt.Errorf("TASKS_URL: %w", err)
+		}
+		if envToken == "" && originOf(envURL) != originOf(cfg.URL) {
 			// Never send a token saved for another origin when TASKS_URL is overridden without TASKS_TOKEN
 			cfg.Token = ""
 		}
@@ -69,12 +97,14 @@ func Load() (Config, error) {
 		cfg.Machine = v
 	}
 
-	cfg.URL = strings.TrimRight(cfg.URL, "/")
 	return cfg, nil
 }
 
 func Save(cfg Config) error {
-	cfg.URL = strings.TrimRight(cfg.URL, "/")
+	var err error
+	if cfg.URL, err = NormalizeURL(cfg.URL); err != nil {
+		return err
+	}
 	p, err := Path()
 	if err != nil {
 		return err

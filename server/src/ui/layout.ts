@@ -226,7 +226,6 @@ export function renderPage(opts: LayoutOptions): string {
         <nav>
           ${navLink("/ui", "Rooms", "rooms")}
           ${navLink("/ui/machines", "Machines", "machines")}
-          ${navLink("/device", "Device Login", "device")}
         </nav>
       </div>
       <div class="user">${escapeHtml(opts.user)}</div>

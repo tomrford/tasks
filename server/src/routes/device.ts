@@ -251,14 +251,7 @@ deviceUiRoutes.get("/", async (c) => {
       <h1>Approve CLI Device</h1>
       ${flash ? `<div class="card" style="border-color:var(--accent);">${escapeHtml(flash)}</div>` : ""}
       ${confirmCard}
-      <div class="card">
-        <h2>Look Up Device Code</h2>
-        <p class="muted" style="margin-top:0;">Enter the 8-character code displayed by <code>tasks login</code> to inspect and approve the machine.</p>
-        <form method="get" action="/device" class="row" style="align-items:stretch;">
-          <input type="text" name="code" value="${escapeHtml(lookupCode)}" placeholder="XXXX-XXXX" required style="max-width:240px;font-family:ui-monospace,monospace;text-transform:uppercase;letter-spacing:0.08em;" />
-          <button type="submit" class="btn-primary">Continue</button>
-        </form>
-      </div>
+      ${!lookupCode && !flash ? `<div class="card"><p class="muted">Run <code>tasks login</code> and open the URL it prints to approve a machine.</p></div>` : ""}
     `,
   });
 

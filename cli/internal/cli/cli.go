@@ -190,7 +190,11 @@ func runLogin(ctx context.Context, args []string, stdout, stderr io.Writer) int 
 		return 2
 	}
 
-	serverURL := strings.TrimRight(strings.TrimSpace(*urlFlag), "/")
+	serverURL, err := config.NormalizeURL(*urlFlag)
+	if err != nil {
+		fmt.Fprintf(stderr, "error: %v\n", err)
+		return 2
+	}
 	if serverURL == "" {
 		fmt.Fprintln(stderr, "error: --url is required (e.g. tasks login --url https://tasks.example.com)")
 		return 2
